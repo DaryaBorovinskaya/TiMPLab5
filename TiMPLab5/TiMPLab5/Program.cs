@@ -1,6 +1,6 @@
 ﻿using Task1;
 
-public class Program
+public partial class Program
 {
     /// <summary>
     /// Проверка на верно введённое целочисленное положительное значение
