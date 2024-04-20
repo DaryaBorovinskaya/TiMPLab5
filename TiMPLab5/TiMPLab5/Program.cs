@@ -49,16 +49,16 @@ public partial class Program
     /// </summary>
     /// <param name="totalSum"></param>
     /// <param name="segments"></param>
-    /// <param name="countPoints"></param>
+    /// <param name="countSegments"></param>
     /// <param name="minAbscissa"></param>
     /// <param name="maxAbscissa"></param>
-    private static void CalculateTotalSum(out int totalSum, Segment[] segments, int countPoints, int minAbscissa, int maxAbscissa )
+    private static void CalculateTotalSum(out int totalSum, Segment[] segments, int countSegments, int minAbscissa, int maxAbscissa )
     {
         totalSum = segments[0].Length;
-        if (countPoints > 1)
+        if (countSegments > 1)
         {
             // Полное перекрывание самым длинным отрезком всех остальных.
-            for (int i = countPoints-1; i >=0 ; i--)
+            for (int i = countSegments-1; i >=0 ; i--)
             {
                 if (segments[i].BeginPoint <= minAbscissa && segments[i].EndPoint == maxAbscissa)
                 {
@@ -67,20 +67,35 @@ public partial class Program
                 }
             }
 
-            
-            for(int i = 1; i < countPoints-1; i++) 
+            if(countSegments==2)
             {
-                if (segments[i].EndPoint > segments[i+1].BeginPoint)
+                if (segments[0].EndPoint > segments[1].BeginPoint)
                 {
                     // Отрезки частично перекрывают друг друга.
-                    totalSum +=  Math.Abs(segments[i+1].EndPoint - segments[i].BeginPoint);
+                    totalSum = Math.Abs(segments[1].EndPoint - segments[0].BeginPoint);
                 }
-                else 
+                else
                 {
                     // Тени соседних отрезков соединяются в одну или не пересекаются.
-                    totalSum += segments[i].Length + segments[i+1].Length;
+                    totalSum += segments[1].Length;
                 }
-                
+            }
+            if (countSegments > 2)
+            {
+                for (int i = 1; i < countSegments - 1; i++)
+                {
+                    if (segments[i].EndPoint > segments[i + 1].BeginPoint)
+                    {
+                        // Отрезки частично перекрывают друг друга.
+                        totalSum += Math.Abs(segments[i + 1].EndPoint - segments[i].BeginPoint);
+                    }
+                    else
+                    {
+                        // Тени соседних отрезков соединяются в одну или не пересекаются.
+                        totalSum += segments[i].Length + segments[i + 1].Length;
+                    }
+
+                }
             }
 
         }
@@ -91,7 +106,7 @@ public partial class Program
     {
         string line,line2;
         bool isDigital = true;
-        int countPoints=0;
+        int countSegments=0;
 
         // Ограничение пользовательского ввода (можно вводить только целочисленное положительное значение).
         do
@@ -101,7 +116,7 @@ public partial class Program
             if (IsOnlyNumbers(line))
             {
                 isDigital = true;
-                countPoints = Convert.ToInt32(line);
+                countSegments = Convert.ToInt32(line);
             }
             else
             {
@@ -110,10 +125,10 @@ public partial class Program
             }
         } while (!isDigital);
 
-        Segment[] segments = new Segment[countPoints];
+        Segment[] segments = new Segment[countSegments];
         int beginPoint=0, endPoint=0;
         bool isRightSegment = true;
-        for (int i = 1; i <= countPoints; i++)
+        for (int i = 1; i <= countSegments; i++)
         {
             // Ограничение пользовательского ввода (можно вводить только различные целочисленные значения).
             do
@@ -149,7 +164,7 @@ public partial class Program
         int minAbscissa = int.MaxValue, indexMinAbsc = 0;
 
         // Наименьшая абсцисса среди всех отрезков и индекс отрезка с этой абсциссой.
-        int maxAbscissa = int.MinValue, indexMaxAbsc = countPoints - 1;
+        int maxAbscissa = int.MinValue, indexMaxAbsc = countSegments - 1;
 
         // Поиск наименьшей и наибольшей абсцисс среди всех отрезков и соответствующих им индексов отрезков.
         for (int i = 0; i < segments.Length; i++)
@@ -176,13 +191,13 @@ public partial class Program
         segments[indexMinAbsc] = tempSegment;
 
         // Перемещение отрезка с наибольшей абсциссой в конец массива.
-        tempSegment = segments[countPoints - 1];
-        segments[countPoints - 1] = segments[indexMaxAbsc];
+        tempSegment = segments[countSegments - 1];
+        segments[countSegments - 1] = segments[indexMaxAbsc];
         segments[indexMaxAbsc] = tempSegment;
 
         // Суммарная длина тени.
         int totalSum;
-        CalculateTotalSum(out totalSum, segments, countPoints, minAbscissa, maxAbscissa);
+        CalculateTotalSum(out totalSum, segments, countSegments, minAbscissa, maxAbscissa);
         Console.WriteLine($"\nСуммарная длина тени всех отрезков: {totalSum}");
 
     }
